@@ -25,11 +25,21 @@ window.geometry(f'{app_width}x{app_height}+{int(x)}+{int(y)}')
 # callback function to get your StringVars
 def get_mat():
     matrix = []
+    ADJLIST_GRAPH = {}
     for i in range(rows):
         matrix.append([])
         for j in range(cols):
             matrix[i].append(text_var[i][j].get())
-    print(matrix)
+    for i in range(rows):
+        monList = []
+        for j in range(cols):
+            if i==j:
+                continue
+            else:
+                k = matrix[i][j]
+                monList.append((str(j),int(k)))
+        ADJLIST_GRAPH[str(i)] = monList
+    print(ADJLIST_GRAPH)
 
 # function that show the input labels
 def matrixInput():
@@ -39,7 +49,9 @@ def matrixInput():
     nbSommets.destroy()
     global rows, cols
     rows, cols = (int(nbrNoeuds) , int(nbrNoeuds))
-    # window.resizable(true, true)
+    x = (screen_width / 2) - (700 / 2)
+    y = (screen_height / 2 ) - (500 / 2)
+    window.geometry(f'{700}x{500}+{int(x)}+{int(y)}')
     Label(window, text="Remplir la matrice d'Adjacence par les Couts", font=('arial', 10, 'bold'),
     bg="orange").place(x=15, y=20)
     button.place(x=310,y=20)
@@ -47,12 +59,9 @@ def matrixInput():
     x2 = 0
     y2 = 0
     for i in range(rows):
-        # append an empty list to your two arrays
-        # so you can append to those later
         text_var.append([])
         entries.append([])
         for j in range(cols):
-            # append your StringVar and Entry
             text_var[i].append(StringVar())
             entries[i].append(Entry(window, textvariable=text_var[i][j],width=3))
             entries[i][j].place(x=60 + x2, y=55 + y2)

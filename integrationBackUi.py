@@ -1,19 +1,87 @@
+from tkinter import Tk, Label, StringVar, Button, Entry
 import graph
 import matplotlib.pyplot as plt
-
 import time
 import math
 from itertools import permutations
+from platform import system
 
-ADJLIST_GRAPH = {
-    "1": {("2", 10), ("3", 11), ("4", 12), ("5", 13), ("6", 14)},
-    "2": {("1", 10), ("3", 15), ("4", 16), ("5", 17), ("6", 18)},
-    "3": {("1", 11), ("2", 15), ("4", 19), ("5", 20), ("6", 21)},
-    "4": {("1", 12), ("2", 16), ("3", 19), ("5", 22), ("6", 23)},
-    "5": {("1", 13), ("2", 17), ("3", 20), ("4", 22), ("6", 24)},
-    "6": {("1", 14), ("2", 18), ("3", 21), ("4", 23), ("5", 24)},
-}
+# global declarations
+global rows, cols
+text_var = []   # empty arrays for your Entrys and StringVars
+entries = []    # empty arrays for your Entrys and StringVars
+global nbrNoeuds
+nbrNoeuds = 0
 EDGE_PATH_COLOR = "red"
+global ADJLIST_GRAPH
+ADJLIST_GRAPH = {}
+
+# Designate Height and Width of our app
+app_width = 400
+app_height = 150
+# declare the window
+window = Tk()
+window.title('TP4: Problem PVC - BILAL BELLI')
+window.configure(bg='white')
+# The Height and Width of our pc screen
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+x = (screen_width / 2) - (app_width / 2)
+y = (screen_height / 2 ) - (app_height / 2)
+window.geometry(f'{app_width}x{app_height}+{int(x)}+{int(y)}')
+# window.resizable(False, False)
+
+# callback function to get your StringVars
+def get_mat():
+    matrix = []
+    global ADJLIST_GRAPH
+    ADJLIST_GRAPH = {}
+    for i in range(rows):
+        matrix.append([])
+        for j in range(cols):
+            matrix[i].append(text_var[i][j].get())
+    for i in range(rows):
+        monList = []
+        for j in range(cols):
+            if i==j:
+                continue
+            else:
+                k = matrix[i][j]
+                monList.append((str(j),int(k)))
+        ADJLIST_GRAPH[str(i)] = monList
+    print(ADJLIST_GRAPH)
+    launchGraphPlotter()
+
+# function that show the input labels
+def matrixInput():
+    global nbrNoeuds
+    nbrNoeuds = nbSommets.get()
+    label1.destroy()
+    nbSommets.destroy()
+    global rows, cols
+    rows, cols = (int(nbrNoeuds) , int(nbrNoeuds))
+    x = (screen_width / 2) - (700 / 2)
+    y = (screen_height / 2 ) - (500 / 2)
+    window.geometry(f'{700}x{500}+{int(x)}+{int(y)}')
+    Label(window, text="Remplir la matrice d'Adjacence par les Couts", font=('arial', 10, 'bold'),
+    bg="orange").place(x=15, y=20)
+    button.place(x=310,y=20)
+    button.configure(width=7)
+    x2 = 0
+    y2 = 0
+    for i in range(rows):
+        text_var.append([])
+        entries.append([])
+        for j in range(cols):
+            text_var[i].append(StringVar())
+            entries[i].append(Entry(window, textvariable=text_var[i][j],width=3))
+            entries[i][j].place(x=60 + x2, y=55 + y2)
+            x2 += 30
+        y2 += 30
+        x2 = 0
+        i+=1
+        j+=1
+    button.configure(command= get_mat)
 
 # needed algorithme for the exact one
 def tsp(g, s):
@@ -45,7 +113,6 @@ def tsp(g, s):
 def tsp_path_exact(G: graph.Graph) -> list:
     g = G.tomatrix()
     start = 0
-
     path_idxs = tsp(g, start)
     cost = 0
     path = []
@@ -98,7 +165,6 @@ def tsp_path(G, tsp_func, alg_name):
     title = f"\n {alg_name}\n tempsd'éxecution : {dt} secondes\n coût minimal : {path['cost']}"
     G.draw(edge_color_key=edge_color_key, title=title)
 
-from platform import system
 def plt_maximize():
     backend = plt.get_backend()
     cfm = plt.get_current_fig_manager()
@@ -118,12 +184,22 @@ def plt_maximize():
     else:
         raise RuntimeError("plt_maximize() is not implemented for current backend:", backend)
 
-if __name__ == "__main__":
+def launchGraphPlotter():
+    global ADJLIST_GRAPH
     plt.figure(figsize=(16, 16), dpi=100)
-
     G = graph.Graph(ADJLIST_GRAPH)
-
     tsp_path(G, tsp_path_heuristics, "Algorithme pour solution approximative (heuristiques)")
     tsp_path(G, tsp_path_exact, "Algorithme pour solution complète")
     plt_maximize()
     plt.show()
+
+# declaration objets d'affichage
+label1 = Label(window, text="Entrer le nombre de Sommets", font=('arial', 10, 'bold'), bg="orange")
+label1.place(x=110, y=15)
+nbSommets = Entry(window,width=5, bg='black', foreground='white')
+button = Button(window,text="Suivant", bg='orange', width=10,command= matrixInput, font=('arial', 10, 'bold'))
+
+# affichage
+nbSommets.place(x=195, y=45)
+button.place(x=168,y=70)
+window.mainloop()
